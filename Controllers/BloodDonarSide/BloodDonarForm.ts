@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import BloodDonor from "../../Model/BloodDonarSchema";
+import bloodModel from "../../Model/BloodDonarSchema";
 import createError from "http-errors";
-import User from "../../Model/UserSchema";
+import userModel from "../../Model/UserSchema";
 
 // ✅ Create a Donor
 export const createDonor = async (
@@ -18,7 +18,7 @@ export const createDonor = async (
     } = req.body.newDonor;
 
     // Check if donor already exists by email
-    const exists = await BloodDonor.findOne({ phone });
+    const exists = await bloodModel.findOne({ phone });
     if (exists) {
       throw new createError.Conflict("Phone already exists");
     }
@@ -31,18 +31,18 @@ export const createDonor = async (
       );
     }
 
-    const existingUser = await User.findById(userId);
+    const existingUser = await userModel.findById(userId);
     if (!existingUser) {
       throw new createError.NotFound("User not found");
     }
 
  
-    const existingDonor = await BloodDonor.findOne({ userId });
+    const existingDonor = await bloodModel.findOne({ userId });
     if (existingDonor) {
       throw new createError.BadRequest("Donor already created");
     }
 
-    const donor = new BloodDonor({
+    const donor = new bloodModel({
       phone: cleanedPhone,
       dateOfBirth,
       bloodGroup,
@@ -92,7 +92,7 @@ export const getDonors = async (
   if (pincode) query["address.pincode"] = pincode;
   if (place) query["address.place"] = place;
 
-  const donors = await BloodDonor.find(query)
+  const donors = await bloodModel.find(query)
     .populate("userId")
     .sort({ createdAt: -1 });
 
@@ -108,7 +108,7 @@ export const getSingleDonor = async (
 
   if (!id) throw new createError.BadRequest("Invalid donor ID");
 
-  const donor = await BloodDonor.findById(id).populate("userId");
+  const donor = await bloodModel.findById(id).populate("userId");
   if (!donor) throw new createError.NotFound("Donor not found");
 
   return res.status(200).json(donor);
@@ -123,7 +123,7 @@ export const getDonorId = async (
 
   if (!id) throw new createError.BadRequest("Invalid donor ID");
 
-  const donor = await BloodDonor.findOne({ userId: id });
+  const donor = await bloodModel.findOne({ userId: id });
   if (!donor) throw new createError.NotFound("Donor not found");
 
   return res.status(200).json(donor);
@@ -139,7 +139,7 @@ export const updateDonor = async (
 
   if (!id) throw new createError.BadRequest("Invalid donor ID");
 
-  const donor = await BloodDonor.findByIdAndUpdate(id, updateData, {
+  const donor = await bloodModel.findByIdAndUpdate(id, updateData, {
     new: true,
   });
   if (!donor) throw new createError.NotFound("Donor not found");
@@ -156,7 +156,7 @@ export const deleteDonor = async (
 
   if (!id) throw new createError.BadRequest("Invalid donor ID");
 
-  const donor = await BloodDonor.findByIdAndDelete(id);
+  const donor = await bloodModel.findByIdAndDelete(id);
   if (!donor) throw new createError.NotFound("Donor not found");
 
   return res.status(200).json({ message: "Donor deleted successfully" });

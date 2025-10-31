@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import MedicineRemainder from "../../Model/MedicineRemainderSchema";
 import createError from "http-errors";
 import moment from 'moment';
+import medicineModel from "../../Model/MedicineRemainderSchema";
 
 // export const checkMissedDoses = async () => {
 //   const now = moment();
 
-//   const medicines = await MedicineRemainder.find({ reminder: true });
+//   const medicines = await medicineModel.find({ reminder: true });
 
 //   for (const medicine of medicines) {
 //     const start = moment(medicine.startDate);
@@ -52,7 +52,7 @@ import moment from 'moment';
 // refilltracking
 
 export const checkAndRefillMedicines = async () => {
-  const medicines = await  MedicineRemainder.find({ refillTracking: true });
+  const medicines = await  medicineModel.find({ refillTracking: true });
 
   for (const medicine of medicines) {
     // Skip if no dates
@@ -128,7 +128,7 @@ export const createMedicine = async (req: Request, res: Response): Promise<Respo
       });
     }
 
-    const medicine = new MedicineRemainder({
+    const medicine = new medicineModel({
       ...data,
       dates: dateList
     });
@@ -152,7 +152,7 @@ export const getMedicines = async (req: Request, res: Response): Promise<Respons
     name: { $regex: search, $options: "i" },
   };
 
-  const medicines = await MedicineRemainder.find({
+  const medicines = await medicineModel.find({
     userId,
     ...query
   })
@@ -161,7 +161,7 @@ export const getMedicines = async (req: Request, res: Response): Promise<Respons
     .sort({ createdAt: -1 });
   
 
-  const total = await MedicineRemainder.countDocuments(query);
+  const total = await medicineModel.countDocuments(query);
 
   return res.status(200).json({
     medicines,
@@ -177,7 +177,7 @@ export const getSingleMedicine = async (req: Request, res: Response): Promise<Re
 
   if (!id) throw new createError.BadRequest("Invalid medicine ID");
 
-  const medicine = await MedicineRemainder.findOne({_id: id});
+  const medicine = await medicineModel.findOne({_id: id});
   
   if (!medicine) throw new createError.NotFound("Medicine not found");
 
@@ -229,7 +229,7 @@ export const updateMedicine = async (req: Request, res: Response): Promise<Respo
       updateData.dates = dateList;
     }
 
-    const medicine = await MedicineRemainder.findByIdAndUpdate(id, updateData, { new: true });
+    const medicine = await medicineModel.findByIdAndUpdate(id, updateData, { new: true });
     if (!medicine) {
       return res.status(404).json({ error: "Medicine not found" });
     }
@@ -249,7 +249,7 @@ export const deleteMedicine = async (req: Request, res: Response): Promise<Respo
 
   if (!id) throw new createError.BadRequest("Invalid medicine ID");
 
-  const medicine = await MedicineRemainder.findByIdAndDelete(id);
+  const medicine = await medicineModel.findByIdAndDelete(id);
   if (!medicine) throw new createError.NotFound("Medicine not found");
 
   return res.status(200).json({ message: "Medicine deleted successfully" });
@@ -264,7 +264,7 @@ export const editMedicineStatus = async (req: Request, res: Response): Promise<R
     return res.status(400).json({ message: "Time is required" });
   }
 
-  const medicine = await MedicineRemainder.findById(id);
+  const medicine = await medicineModel.findById(id);
   if (!medicine) {
     return res.status(404).json({ message: "Medicine not found" });
   }
@@ -304,7 +304,7 @@ export const editMedicineStatus = async (req: Request, res: Response): Promise<R
 //  export const alaram = async (req: Request, res: Response): Promise<any> => {
 
 //   const now = moment();
-//   const medicines = await MedicineRemainder.find({ reminder: true });
+//   const medicines = await medicineModel.find({ reminder: true });
 
 //   let anyMissed = false;
 

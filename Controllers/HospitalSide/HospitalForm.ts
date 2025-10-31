@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import createError from "http-errors";
 import bcrypt from "bcrypt";
 import Jwt, { JwtPayload } from "jsonwebtoken";
-import Hospital from "../../Model/HospitalSchema";
-import User from "../../Model/UserSchema";
-import notficationModel from "../../Model/NotificationSchema";
+import hospitalModel from "../../Model/HospitalSchema";
+import userModel from "../../Model/UserSchema";
+import notificationModel from "../../Model/NotificationSchema";
 import mongoose from "mongoose";
 import { v2 as cloudinary } from "cloudinary";
 import { Expo } from "expo-server-sdk";
@@ -129,7 +129,7 @@ export const HospitalRegistration = async (
   // }
 
   // Check if the hospital already exists with the same email
-  const existingHospital = await Hospital.findOne({ email });
+  const existingHospital = await hospitalModel.findOne({ email });
   if (existingHospital) {
     throw new createError.Conflict("Email already exists. Please login.");
   }
@@ -176,7 +176,7 @@ export const HospitalRegistration = async (
     );
   }
 
-  const newHospital = new Hospital(hospitalData);
+  const newHospital = new hospitalModel(hospitalData);
 
   // Save the hospital to the database
   await newHospital.save();
@@ -195,7 +195,7 @@ export const HospitalLogin = async (
 ): Promise<Response> => {
   const { email, password } = req.body;
 
-  const hospital = await Hospital.findOne({ email: email });
+  const hospital = await hospitalModel.findOne({ email: email });
   if (!hospital) {
     throw new createError.Unauthorized("User not found!");
   }
@@ -243,7 +243,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
   try {
     // Check if customer exists
 
-    const user = await Hospital.findOne({ phone: String(phone).trim() });
+    const user = await hospitalModel.findOne({ phone: String(phone).trim() });
 
     if (!user) {
       return res.status(400).json({ message: "Phone number not registered!" });
@@ -318,7 +318,7 @@ export const verifyOtp = async (
     otpStorage.delete(formattedPhone);
 
     // Find customer
-    const hospital = await Hospital.findOne({ phone });
+    const hospital = await hospitalModel.findOne({ phone });
     if (!hospital) {
       return res.status(400).json({ message: "Customer not found" });
     }
@@ -368,7 +368,7 @@ export const resetPassword = async (
 ): Promise<Response> => {
   const { phone, password } = req.body;
 
-  const hospital = await Hospital.findOne({ phone });
+  const hospital = await hospitalModel.findOne({ phone });
   if (!hospital) {
     throw new createError.NotFound("No user found");
   }
@@ -409,7 +409,7 @@ export const getHospitalDetails = async (
     }
 
     // Find hospital and populate user details inside booking
-    const hospital = await Hospital.findById(decoded.id).populate({
+    const hospital = await hospitalModel.findById(decoded.id).populate({
       path: "booking.userId", // path to populate
       select: "name email phone", // choose what to return from User
     });
@@ -452,7 +452,7 @@ export const updateHospitalDetails = async (
     newPassword,
     workingHoursClinic,
   } = req.body;
-  const hospital = await Hospital.findById(id);
+  const hospital = await hospitalModel.findById(id);
   if (!hospital) {
     throw new createError.NotFound("Hospital not found. Wrong input");
   }
@@ -498,7 +498,7 @@ export const addSpecialty = async (
   const { department_info, description, doctors, name, phone } = req.body;
   const { id } = req.params;
 
-  const hospital = await Hospital.findById(id);
+  const hospital = await hospitalModel.findById(id);
   if (!hospital) {
     throw new createError.NotFound("Hospital not found. Wrong input");
   }
@@ -538,7 +538,7 @@ export const updateSpecialty = async (
 ): Promise<Response> => {
   const { department_info, description, doctors, name, phone } = req.body;
   const { id } = req.params;
-  const hospital = await Hospital.findById(id);
+  const hospital = await hospitalModel.findById(id);
   if (!hospital) {
     throw new createError.NotFound("Hospital not found. Wrong input");
   }
@@ -584,7 +584,7 @@ export const deleteSpecialty = async (
   const { name } = req.query as { name: string };
   const { id } = req.params;
 
-  const hospital = await Hospital.findById(id);
+  const hospital = await hospitalModel.findById(id);
   if (!hospital) {
     throw new createError.NotFound("Hospital not found. Wrong input");
   }
@@ -617,7 +617,7 @@ export const addDoctor = async (
   const { name, specialty, consulting, qualification } = req.body;
   const data = { name, consulting, qualification };
 
-  const hospital = await Hospital.findById(id);
+  const hospital = await hospitalModel.findById(id);
   hospital?.specialties
     .filter((Specialty) => {
       return Specialty.name === specialty;
@@ -639,7 +639,7 @@ export const updateDoctor = async (
   const { _id, name, specialty, consulting, qualification } = req.body;
   const data = { name, consulting, qualification };
 
-  const hospital = await Hospital.findById(id);
+  const hospital = await hospitalModel.findById(id);
 
   if (!hospital) {
     return res.status(404).json({ message: "Hospital not found" });
@@ -680,7 +680,7 @@ export const deleteDoctor = async (
   const { hospital_id, doctor_id } = req.params;
   const { specialty_name } = req.query as { specialty_name: string };
 
-  const hospital = await Hospital.findById(hospital_id);
+  const hospital = await hospitalModel.findById(hospital_id);
   if (!hospital) {
     throw new createError.NotFound("Hospital not found!");
   }
@@ -718,14 +718,14 @@ export const hospitalDelete = async (
       sameSite: "none",
     });
   }
-  const hospital = await Hospital.findById(id);
+  const hospital = await hospitalModel.findById(id);
   if (!hospital) {
     throw new createError.NotFound("Hospital not found!");
   }
   if (hospital.image?.public_id) {
     await cloudinary.uploader.destroy(hospital.image.public_id);
   }
-  await Hospital.deleteOne({ _id: id });
+  await hospitalModel.deleteOne({ _id: id });
   return res.status(200).send("Your account deleted successfully");
 };
 
@@ -738,13 +738,13 @@ export const createBooking = async (
     const { userId, specialty, doctor_name, booking_date,  patient_name ,  patient_phone , patient_place,  patient_dob } = req.body;
 
     // Validate user
-    const user = await User.findById(userId);
+    const user = await userModel.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     // Validate hospital
-    const hospital = await Hospital.findById(id);
+    const hospital = await hospitalModel.findById(id);
     if (!hospital) {
       return res.status(404).json({ message: "Hospital not found" });
     }
@@ -767,7 +767,7 @@ export const createBooking = async (
     // Save hospital
     await hospital.save();
 
-    await notficationModel.create({
+    await notificationModel.create({
       hospitalId: id,
       message: `${doctor_name} has created a new booking.`,
     });
@@ -803,7 +803,7 @@ export const updateBooking = async (
     const { status, booking_date, booking_time } = req.body;
 
     // Find hospital
-    const hospital = await Hospital.findById(hospitalId);
+    const hospital = await hospitalModel.findById(hospitalId);
     if (!hospital) {
       return res.status(404).json({ message: "Hospital not found" });
     }
@@ -822,7 +822,7 @@ export const updateBooking = async (
     await hospital.save();
 
     // Find the user of this booking
-    const user = await User.findById(booking.userId);
+    const user = await userModel.findById(booking.userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -837,13 +837,13 @@ export const updateBooking = async (
     }
 
     if (status == "cancel") {
-      await notficationModel.create({
+      await notificationModel.create({
         hospitalId: hospitalId,
         message: `The booking with  ${booking.doctor_name} has been ${booking.status}.`,
       });
     } else {
       // Create a notification record in DB
-      await notficationModel.create({
+      await notificationModel.create({
         userId: booking.userId,
         message: `Your booking with ${booking.doctor_name} is now ${booking.status}.`,
       });
@@ -885,7 +885,7 @@ export const getBookingsByUserId = async (
     }
 
     // Find all hospitals that have at least one booking by this user
-    const hospitals = await Hospital.find({
+    const hospitals = await hospitalModel.find({
       "booking.userId": userId,
     }).lean();
 
@@ -931,7 +931,7 @@ export const updateDoctorBookingStatus = async (
     const { bookingOpen } = req.body;
 
     // Find hospital
-    const hospital = await Hospital.findById(hospitalId);
+    const hospital = await hospitalModel.findById(hospitalId);
     if (!hospital) {
       return res.status(404).json({ message: "Hospital not found" });
     }
@@ -977,7 +977,7 @@ export const getSingleHospital = async (
 
   if (!id) throw new createError.BadRequest("Invalid hospital ID");
 
-  const hospital = await Hospital.findById(id);
+  const hospital = await hospitalModel.findById(id);
   if (!hospital) throw new createError.NotFound("hospital not found");
 
   return res.status(200).json(hospital);

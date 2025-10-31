@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
-import Lab from "../../Model/labSchema"; 
+import labModel from "../../Model/labSchema"; 
 import createError from "http-errors";
 
 // ✅ Create a Lab
 export const createLab = async (req: Request, res: Response): Promise<Response> => {
   const { name, email, phone, time, services, location } = req.body;
 
-  const exists = await Lab.findOne({ email });
+  const exists = await labModel.findOne({ email });
   if (exists) throw new createError.Conflict("Email already exists");
 
-  const lab = new Lab({ name, email, phone, time, services, location });
+  const lab = new labModel({ name, email, phone, time, services, location });
   await lab.save();
 
   return res.status(201).json({ message: "Lab created successfully", lab });
@@ -30,12 +30,12 @@ export const getLabs = async (req: Request, res: Response): Promise<Response> =>
   if (pincode) query["location.pincode"] = +pincode;
   if (place) query["location.place"] = { $regex: place, $options: "i" };
 
-  const labs = await Lab.find(query)
+  const labs = await labModel.find(query)
     .skip((+page - 1) * +limit)
     .limit(+limit)
     .sort({ createdAt: -1 });
 
-  const total = await Lab.countDocuments(query);
+  const total = await labModel.countDocuments(query);
 
   return res.status(200).json({ labs, total, page: +page, totalPages: Math.ceil(total / +limit) });
 };
@@ -46,7 +46,7 @@ export const getSingleLab = async (req: Request, res: Response): Promise<Respons
 
   if (!id) throw new createError.BadRequest("Invalid Lab ID");
 
-  const lab = await Lab.findById(id);
+  const lab = await labModel.findById(id);
   if (!lab) throw new createError.NotFound("Lab not found");
 
   return res.status(200).json(lab);
@@ -59,7 +59,7 @@ export const updateLab = async (req: Request, res: Response): Promise<Response> 
 
   if (!id) throw new createError.BadRequest("Invalid Lab ID");
 
-  const lab = await Lab.findByIdAndUpdate(id, updateData, { new: true });
+  const lab = await labModel.findByIdAndUpdate(id, updateData, { new: true });
   if (!lab) throw new createError.NotFound("Lab not found");
 
   return res.status(200).json({ message: "Lab updated", lab });
@@ -71,7 +71,7 @@ export const deleteLab = async (req: Request, res: Response): Promise<Response> 
 
   if (!id) throw new createError.BadRequest("Invalid Lab ID");
 
-  const lab = await Lab.findByIdAndDelete(id);
+  const lab = await labModel.findByIdAndDelete(id);
   if (!lab) throw new createError.NotFound("Lab not found");
 
   return res.status(200).json({ message: "Lab deleted successfully" });

@@ -38,6 +38,6 @@ const ambulanceSchema = new Schema({
         type: String,
     },
 });
-const Ambulance = mongoose_1.default.model("Ambulance", ambulanceSchema);
-exports.default = Ambulance;
+const ambulanceModel = mongoose_1.default.model("Ambulance", ambulanceSchema);
+exports.default = ambulanceModel;
 //# sourceMappingURL=AmbulanceSchema.js.map

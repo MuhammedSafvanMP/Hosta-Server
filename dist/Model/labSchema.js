@@ -34,5 +34,6 @@ const labSchema = new Schema({
         pincode: { type: Number, required: true },
     }
 }, { timestamps: true });
-exports.default = mongoose_1.default.model("Lab", labSchema);
+const labModel = mongoose_1.default.model("Lab", labSchema);
+exports.default = labModel;
 //# sourceMappingURL=labSchema.js.map

@@ -77,5 +77,6 @@ const bloodDonorSchema = new mongoose_1.Schema({
         pincode: { type: Number, required: true },
     },
 }, { timestamps: true });
-exports.default = mongoose_1.default.model("BloodDonor", bloodDonorSchema);
+const bloodModel = mongoose_1.default.model("BloodDonor", bloodDonorSchema);
+exports.default = bloodModel;
 //# sourceMappingURL=BloodDonarSchema.js.map

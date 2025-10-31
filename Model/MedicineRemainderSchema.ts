@@ -56,4 +56,5 @@ const medicineRemainderSchema = new Schema(
 );
 
 
-export default mongoose.model("MedicineRemainder", medicineRemainderSchema);
+const medicineModel = mongoose.model("MedicineRemainder", medicineRemainderSchema);
+export default  medicineModel;

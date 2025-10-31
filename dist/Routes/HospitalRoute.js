@@ -13,6 +13,7 @@ hospitalRoutes.post("/hospital/registration", (0, TryCatch_1.trycatch)(HospitalF
 hospitalRoutes.post("/hospital/login", (0, TryCatch_1.trycatch)(HospitalForm_1.login));
 hospitalRoutes.post("/hospital/otp", (0, TryCatch_1.trycatch)(HospitalForm_1.verifyOtp));
 hospitalRoutes.post("/hospital/login/mail", (0, TryCatch_1.trycatch)(HospitalForm_1.HospitalLogin));
+hospitalRoutes.get("/hospital/:id", (0, TryCatch_1.trycatch)(HospitalForm_1.getSingleHospital));
 hospitalRoutes.post("/hospital/password", (0, TryCatch_1.trycatch)(HospitalForm_1.resetPassword));
 hospitalRoutes.get("/hospital/details", Authenticator_1.default, (0, TryCatch_1.trycatch)(HospitalForm_1.getHospitalDetails));
 hospitalRoutes.put("/hospital/details/:id", Authenticator_1.default, (0, TryCatch_1.trycatch)(HospitalForm_1.updateHospitalDetails));

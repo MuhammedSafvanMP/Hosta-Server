@@ -55,5 +55,6 @@ const medicineRemainderSchema = new Schema({
         required: true
     },
 }, { timestamps: true });
-exports.default = mongoose_1.default.model("MedicineRemainder", medicineRemainderSchema);
+const medicineModel = mongoose_1.default.model("MedicineRemainder", medicineRemainderSchema);
+exports.default = medicineModel;
 //# sourceMappingURL=MedicineRemainderSchema.js.map

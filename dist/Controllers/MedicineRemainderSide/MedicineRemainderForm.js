@@ -4,12 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.editMedicineStatus = exports.deleteMedicine = exports.updateMedicine = exports.getSingleMedicine = exports.getMedicines = exports.createMedicine = exports.checkAndRefillMedicines = void 0;
-const MedicineRemainderSchema_1 = __importDefault(require("../../Model/MedicineRemainderSchema"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const moment_1 = __importDefault(require("moment"));
+const MedicineRemainderSchema_1 = __importDefault(require("../../Model/MedicineRemainderSchema"));
 // export const checkMissedDoses = async () => {
 //   const now = moment();
-//   const medicines = await MedicineRemainder.find({ reminder: true });
+//   const medicines = await medicineModel.find({ reminder: true });
 //   for (const medicine of medicines) {
 //     const start = moment(medicine.startDate);
 //     const end = medicine.days === "ongoing"
@@ -242,7 +242,7 @@ const editMedicineStatus = async (req, res) => {
 exports.editMedicineStatus = editMedicineStatus;
 //  export const alaram = async (req: Request, res: Response): Promise<any> => {
 //   const now = moment();
-//   const medicines = await MedicineRemainder.find({ reminder: true });
+//   const medicines = await medicineModel.find({ reminder: true });
 //   let anyMissed = false;
 //   for (const medicine of medicines) {
 //     for (const dateEntry of medicine.dates) {

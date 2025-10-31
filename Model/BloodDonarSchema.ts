@@ -61,4 +61,5 @@ const bloodDonorSchema: Schema<IBloodDonor> = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.model<IBloodDonor>("BloodDonor", bloodDonorSchema);
+const bloodModel = mongoose.model<IBloodDonor>("BloodDonor", bloodDonorSchema);
+export default  bloodModel;

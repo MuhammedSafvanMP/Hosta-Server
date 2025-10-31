@@ -3,7 +3,7 @@ import Joi from "joi";
 import HttpError from "http-errors";
 import bcrypt from "bcrypt";
 import Jwt, { JwtPayload } from "jsonwebtoken";
-import User from "../../Model/UserSchema";
+import userModel from "../../Model/UserSchema";
 import { ObjectId } from "mongodb";
 import Hospital from "../../Model/HospitalSchema";
 const twilio = require("twilio");
@@ -51,14 +51,14 @@ export const userRegister = async (
     throw new HttpError.BadRequest(error.details[0].message);
   }
 
-  const existingUser = await User.findOne({
+  const existingUser = await userModel.findOne({
     email: req.body.email,
   });
   if (existingUser) {
     throw new HttpError.Conflict("Email is already registered, Please login");
   }
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
-  const newUser = new User({
+  const newUser = new userModel({
     ...req.body,
     password: hashedPassword,
   });
@@ -90,7 +90,7 @@ export const userLogin = async (
 ): Promise<Response> => {
   const { email, password } = req.body;
 
-  const user: User | null = await User.findOne({ email: email });
+  const user: User | null = await userModel.findOne({ email: email });
   if (user === null) {
     throw new HttpError.NotFound("You email is not found, Please Register");
   }
@@ -135,7 +135,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
   try {
     // Check if customer exists
 
-    const user = await User.findOne({ phone: String(phone).trim() });
+    const user = await userModel.findOne({ phone: String(phone).trim() });
 
     if (!user) {
       return res.status(400).json({ message: "Phone number not registered!" });
@@ -211,7 +211,7 @@ export const verifyOtp = async (
     otpStorage.delete(formattedPhone);
 
     // Find customer
-    const user = await User.findOne({ phone });
+    const user = await userModel.findOne({ phone });
     if (!user) {
       return res.status(400).json({ message: "Customer not found" });
     }
@@ -348,7 +348,7 @@ export const userData = async (
 
   const { id } = Jwt.verify(token, jwtSecret) as JwtPayload;
 
-  const data = await User.findById(id);
+  const data = await userModel.findById(id);
   return res.status(200).json({
     status: "success",
     data: data,
@@ -359,7 +359,7 @@ export const aUserData = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const user = await User.findById(req.params.id);
+  const user = await userModel.findById(req.params.id);
 
   if (!user) {
     throw new HttpError.NotFound("User not found");
@@ -377,7 +377,7 @@ export const resetPassword = async (
   res: Response
 ): Promise<Response> => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  const user = await userModel.findOne({ email });
   if (!user) {
     throw new HttpError.NotFound("User not found");
   }
@@ -496,7 +496,7 @@ export const saveExpoToken = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { expoPushToken } = req.body;
 
-    const user = await User.findByIdAndUpdate(
+    const user = await userModel.findByIdAndUpdate(
       id,
       { expoPushToken },
       { new: true }

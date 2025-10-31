@@ -3,7 +3,7 @@ import createError from "http-errors";
 import path from "path";
 import { v2 as cloudinary } from "cloudinary";
 import { uploadFile } from "../../Middlewares/Multer";
-import Hospital from "../../Model/HospitalSchema";
+import hospitalModel from "../../Model/HospitalSchema";
 import { log } from "console";
 
 // POST /api/hospitals/:id/ads
@@ -19,7 +19,7 @@ export const uploadAd = async (
     console.log(req.body);
 
     // Find hospital
-    const hospital = await Hospital.findById(id);
+    const hospital = await hospitalModel.findById(id);
     if (!hospital) {
       throw new createError.NotFound("Hospital not found!");
     }
@@ -58,7 +58,7 @@ export const uploadAd = async (
 // DELETE /api/hospitals/:hospitalId/ads/:adId
 export const deleteAd = async (req: Request, res: Response) => {
   const { hospitalId, adId } = req.params;
-  const hospital = await Hospital.findById(hospitalId);
+  const hospital = await hospitalModel.findById(hospitalId);
   if (!hospital) throw new createError.NotFound("Hospital not found!");
 
   const ad = hospital.ads.find((ad) => ad._id?.toString() === adId.toString());
@@ -81,7 +81,7 @@ export const updateAd = async (req: Request, res: Response) => {
   const file = req.file; // uploaded image
   const { title, startDate, endDate, isActive } = req.body; // text fields
 
-  const hospital = await Hospital.findById(hospitalId);
+  const hospital = await hospitalModel.findById(hospitalId);
   if (!hospital) throw new createError.NotFound("Hospital not found!");
 
   const ad = hospital.ads.id(adId);
@@ -117,7 +117,7 @@ export const GetAds = async (req: Request, res: Response) => {
     const nearbyAds: any[] = [];
 
     if (!lat || !lng) {
-      const hospitals = await Hospital.find();
+      const hospitals = await hospitalModel.find();
       hospitals.forEach((hospital) => {
         hospital.ads.forEach((ad) => {
           if (ad.isActive) nearbyAds.push(ad);
@@ -134,7 +134,7 @@ export const GetAds = async (req: Request, res: Response) => {
 
 
     // Fetch hospitals that have ads
-    const hospitals = await Hospital.find({
+    const hospitals = await hospitalModel.find({
       ads: { $exists: true, $not: { $size: 0 } },
     });
 
@@ -169,7 +169,7 @@ export const GetAds = async (req: Request, res: Response) => {
 // GET /api/hospitals/:id/ads - Get all ads for a specific hospital
 export const GetAdsHospital = async (req: Request, res: Response) => {
   const hospitalId = req.params.id;
-  const hospital = await Hospital.findById(hospitalId);
+  const hospital = await hospitalModel.findById(hospitalId);
   if (!hospital) {
     return res.status(404).json({ message: "Hospital not found" });
   }

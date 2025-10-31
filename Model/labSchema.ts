@@ -35,4 +35,6 @@ const labSchema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Lab", labSchema);
+const labModel  =  mongoose.model("Lab", labSchema);
+
+export default labModel

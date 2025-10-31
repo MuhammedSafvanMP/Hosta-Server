@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import Ambulance from "../../Model/AmbulanceSchema";
+import ambulanceModel from "../../Model/AmbulanceSchema";
 import createError from "http-errors";
 import Jwt from "jsonwebtoken";
 
@@ -19,11 +19,11 @@ export const Registeration = async (
     vehicleType,
   } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
-  const exist = await Ambulance.findOne({ email: email });
+  const exist = await ambulanceModel.findOne({ email: email });
   if (exist) {
     throw new createError.Conflict("Your email is already exist");
   }
-  const newAmbulace = new Ambulance({
+  const newAmbulace = new ambulanceModel({
     serviceName: serviceName,
     address: address,
     email: email,
@@ -42,7 +42,7 @@ export const Registeration = async (
 //Ambulance Login
 export const login = async (req: Request, res: Response): Promise<Response> => {
   const { email, password } = req.body;
-  const user = await Ambulance.findOne({ email: email });
+  const user = await ambulanceModel.findOne({ email: email });
   if (!user) {
     throw new createError.NotFound("User not found! Please register");
   }
@@ -95,7 +95,7 @@ export const getanAmbulace = async (
   const { id } = Jwt.verify(token, process.env.JWT_SECRET as string) as {
     id: string;
   };
-  const user = await Ambulance.findOne({ _id: id });
+  const user = await ambulanceModel.findOne({ _id: id });
   if (!user) {
     throw new createError.NotFound("User not found!");
   }
@@ -113,7 +113,7 @@ export const updateData = async (
   const { id } = req.params;
   const { serviceName, address, latitude, longitude, phone, vehicleType } =
     req.body;
-  const user = await Ambulance.findById(id);
+  const user = await ambulanceModel.findById(id);
   if (!user) {
     throw new createError.NotFound("User not found!");
   }
@@ -147,11 +147,11 @@ export const ambulanceDelete = async (
       sameSite: "none",
     });
   }
-  const hospital = await Ambulance.findById(id);
+  const hospital = await ambulanceModel.findById(id);
   if (!hospital) {
     throw new createError.NotFound("Hospital not found!");
   }
-  await Ambulance.deleteOne({ _id: id });
+  await ambulanceModel.deleteOne({ _id: id });
   return res.status(200).send("Your account deleted successfully");
 };
 
@@ -160,7 +160,7 @@ export const getAmbulaces = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const ambulances = await Ambulance.find();
+  const ambulances = await ambulanceModel.find();
   if (ambulances.length === 0) {
     throw new createError.NotFound("No Data Found!");
   }

@@ -33,5 +33,5 @@ const ambulanceSchema = new Schema({
     type: String,
   },
 });
-const Ambulance = mongoose.model("Ambulance", ambulanceSchema);
-export default Ambulance;
+const ambulanceModel = mongoose.model("Ambulance", ambulanceSchema);
+export default ambulanceModel;

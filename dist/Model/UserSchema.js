@@ -32,5 +32,6 @@ const userSchema = new Schema({
     picture: { imageUrl: { type: String }, public_id: { type: String } },
     expoPushToken: { type: String },
 }, { timestamps: true });
-exports.default = mongoose_1.default.model("User", userSchema);
+const userModel = mongoose_1.default.model("User", userSchema);
+exports.default = userModel;
 //# sourceMappingURL=UserSchema.js.map

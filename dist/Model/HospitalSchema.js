@@ -75,6 +75,7 @@ const workingHoursClinicSchema = new Schema({
 });
 // Booking Schema
 const bookingSchema = new Schema({
+    patient_name: { type: String }, patient_phone: { type: String }, patient_place: { type: String }, patient_dob: { type: String },
     userId: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'User',
@@ -124,6 +125,6 @@ const hospitalSchema = new Schema({
     ads: [adSchema],
 });
 // Create the model
-const Hospital = mongoose_1.default.model("Hospital", hospitalSchema);
-exports.default = Hospital;
+const hospitalModel = mongoose_1.default.model("Hospital", hospitalSchema);
+exports.default = hospitalModel;
 //# sourceMappingURL=HospitalSchema.js.map

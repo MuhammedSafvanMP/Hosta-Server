@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateDoctorBookingStatus = exports.getBookingsByUserId = exports.updateBooking = exports.createBooking = exports.hospitalDelete = exports.deleteDoctor = exports.updateDoctor = exports.addDoctor = exports.deleteSpecialty = exports.updateSpecialty = exports.addSpecialty = exports.updateHospitalDetails = exports.getHospitalDetails = exports.resetPassword = exports.verifyOtp = exports.login = exports.HospitalLogin = exports.HospitalRegistration = void 0;
+exports.getSingleHospital = exports.updateDoctorBookingStatus = exports.getBookingsByUserId = exports.updateBooking = exports.createBooking = exports.hospitalDelete = exports.deleteDoctor = exports.updateDoctor = exports.addDoctor = exports.deleteSpecialty = exports.updateSpecialty = exports.addSpecialty = exports.updateHospitalDetails = exports.getHospitalDetails = exports.resetPassword = exports.verifyOtp = exports.login = exports.HospitalLogin = exports.HospitalRegistration = void 0;
 const http_errors_1 = __importDefault(require("http-errors"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -13,6 +13,7 @@ const NotificationSchema_1 = __importDefault(require("../../Model/NotificationSc
 const mongoose_1 = __importDefault(require("mongoose"));
 const cloudinary_1 = require("cloudinary");
 const expo_server_sdk_1 = require("expo-server-sdk");
+const socket_1 = require("../../sockets/socket");
 const expo = new expo_server_sdk_1.Expo();
 const twilio = require("twilio");
 require("dotenv").config();
@@ -485,7 +486,7 @@ exports.hospitalDelete = hospitalDelete;
 const createBooking = async (req, res) => {
     try {
         const { id } = req.params; // hospital id
-        const { userId, specialty, doctor_name, booking_date } = req.body;
+        const { userId, specialty, doctor_name, booking_date, patient_name, patient_phone, patient_place, patient_dob } = req.body;
         // Validate user
         const user = await UserSchema_1.default.findById(userId);
         if (!user) {
@@ -503,6 +504,7 @@ const createBooking = async (req, res) => {
             doctor_name,
             booking_date,
             status: "pending",
+            patient_name, patient_phone, patient_place, patient_dob
         };
         // Push into hospital booking array
         hospital.booking.push(newBooking);
@@ -512,9 +514,14 @@ const createBooking = async (req, res) => {
             hospitalId: id,
             message: `${doctor_name} has created a new booking.`,
         });
+        const io = (0, socket_1.getIO)();
+        io.emit("pushNotification", {
+            hospitalId: id,
+            message: `New booking by ${doctor_name}`,
+        });
         return res.status(201).json({
             message: "Booking created successfully",
-            data: hospital.booking[hospital.booking.length - 1], // Return the newly added booking
+            data: hospital.booking[hospital.booking.length - 1],
         });
     }
     catch (error) {
@@ -672,4 +679,14 @@ const updateDoctorBookingStatus = async (req, res) => {
     }
 };
 exports.updateDoctorBookingStatus = updateDoctorBookingStatus;
+const getSingleHospital = async (req, res) => {
+    const { id } = req.params;
+    if (!id)
+        throw new http_errors_1.default.BadRequest("Invalid hospital ID");
+    const hospital = await HospitalSchema_1.default.findById(id);
+    if (!hospital)
+        throw new http_errors_1.default.NotFound("hospital not found");
+    return res.status(200).json(hospital);
+};
+exports.getSingleHospital = getSingleHospital;
 //# sourceMappingURL=HospitalForm.js.map
